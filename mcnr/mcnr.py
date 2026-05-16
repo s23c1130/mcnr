@@ -68,7 +68,7 @@ def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128, noise_inten
     d = proc_stft(x, fft_size=fft_size, hop_size=hop_size)
 
     # Filtering
-    d = proc_filtering(d, noise_intensity)
+    d = proc_filtering(d, noise_intensity=noise_intensity)
 
     # Compute the inverse short-time Fourier transform of the complex-valued spectrogram
     x = proc_istft(d, hop_size=hop_size)
