@@ -17,7 +17,7 @@ def proc_stft(x, fft_size=512, hop_size=128):
     return d
 
 
-def proc_filtering(d, inplace=True):
+def proc_filtering(d, inplace=True, noise_intensity = 1.0):
     # calculate power spectrogram
     p = np.abs(d)**2
 
@@ -29,7 +29,7 @@ def proc_filtering(d, inplace=True):
 
     # leave only the maximum channel for each frame, each freq. bin
     for i in range(d.shape[0]):
-        d[i, p_max != i] = 0.0 + 0.0j
+        d[i, p_max != i] *= (1.0 - noise_intensity)
 
     return d
 
@@ -41,7 +41,7 @@ def proc_istft(d, hop_size=128):
     return x
 
 
-def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128):
+def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128, noise_intensity = 1.0):
     """Apply multi-channel noise reduction to an audio signal.
 
     Example:
@@ -56,6 +56,10 @@ def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128):
         fft_size (int): FFT size (default: 512)
         hop_size (int): Hop size (default: 128)
 
+        noise_intensity:
+        0: 除去しない
+        1: 除去
+
     Returns:
         np.ndarray: Output audio signal. (n_channels, n_samples)
     """
@@ -64,7 +68,7 @@ def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128):
     d = proc_stft(x, fft_size=fft_size, hop_size=hop_size)
 
     # Filtering
-    d = proc_filtering(d)
+    d = proc_filtering(d, noise_intensity)
 
     # Compute the inverse short-time Fourier transform of the complex-valued spectrogram
     x = proc_istft(d, hop_size=hop_size)
@@ -72,7 +76,7 @@ def do_multi_channel_noise_reduction_(x, fft_size=512, hop_size=128):
     return x
 
 
-def do_multi_channel_noise_reduction(x, fft_size=512, hop_size=128, chunk_size=None):
+def do_multi_channel_noise_reduction(x, fft_size=512, hop_size=128, chunk_size=None, noise_intensity=1.0):
     """Apply multi-channel noise reduction to an audio signal.
 
     Example:
@@ -93,7 +97,7 @@ def do_multi_channel_noise_reduction(x, fft_size=512, hop_size=128, chunk_size=N
         np.ndarray: Output audio signal. (n_channels, n_samples)
     """
     if chunk_size is None:
-        return do_multi_channel_noise_reduction_(x, fft_size=fft_size, hop_size=hop_size)
+        return do_multi_channel_noise_reduction_(x, fft_size=fft_size, hop_size=hop_size, noise_intensity=noise_intensity)
 
     y = np.zeros_like(x)
 
