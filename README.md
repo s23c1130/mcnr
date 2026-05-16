@@ -7,7 +7,7 @@ signal processing based multi channel noise reduction
 from GitHub repository:
 
 ```bash
-pip install git+https://github.com/fujie-cit/mcnr.git
+pip install git+https://github.com/s23c1130/mcnr.git
 ```
 
 from the local repository:
@@ -34,6 +34,8 @@ Options:
 - `-i`, `--input`: input wav file (required)
 - `--fft_size`: FFT size (default: 512)
 - `--hop_size`: hop size (default: 128)
+
+- `--NoiseIntensity`: Noise reduction power (0.0: weak ~ 1.0: strongest) (default:1.0)
 
 ### As a Python Module
 
