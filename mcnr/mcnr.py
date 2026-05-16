@@ -29,9 +29,9 @@ def proc_filtering(d, inplace=True, noise_intensity = 1.0):
 
     # leave only the maximum channel for each frame, each freq. bin
     for i in range(d.shape[0]):
-        d[i, p_max != i] *= (1.0 - noise_intensity)
+        d_out[i, p_max != i] *= (1.0 - noise_intensity)
 
-    return d
+    return d_out
 
 
 def proc_istft(d, hop_size=128):
@@ -103,7 +103,7 @@ def do_multi_channel_noise_reduction(x, fft_size=512, hop_size=128, chunk_size=N
 
     for i in range(0, x.shape[1], chunk_size):
         x_chunk = x[:, i:i+chunk_size]
-        y_chunk = do_multi_channel_noise_reduction_(x_chunk, fft_size=fft_size, hop_size=hop_size)
+        y_chunk = do_multi_channel_noise_reduction_(x_chunk, fft_size=fft_size, hop_size=hop_size, noise_intensity=noise_intensity)
         if y_chunk.shape[1] < chunk_size:
             y[:, i:i+y_chunk.shape[1]] = y_chunk
         else:
