@@ -16,21 +16,35 @@ def proc_stft(x, fft_size=512, hop_size=128):
 
     return d
 
+# old
+# def proc_filtering(d, inplace=True, noise_intensity = 1.0):
+#     # calculate power spectrogram
+#     p = np.abs(d)**2
 
-def proc_filtering(d, inplace=True, noise_intensity = 1.0):
-    # calculate power spectrogram
-    p = np.abs(d)**2
+#     # take the maimux channel index for each frame, each freq. bin
+#     p_max = np.argmax(p, axis=0)
 
-    # take the maimux channel index for each frame, each freq. bin
-    p_max = np.argmax(p, axis=0)
+#     # make a copy of the input data
+#     d_out = d if inplace else d.copy()
 
-    # make a copy of the input data
+#     # leave only the maximum channel for each frame, each freq. bin
+#     for i in range(d.shape[0]):
+#         d_out[i, p_max != i] *= (1.0 - noise_intensity)
+
+#     return d_out
+
+# new Softmasked
+def proc_filtering(d, inplace=True, noise_intensity=1.0):
+    p = np.abs(d) ** 2
+    p_sum = np.sum(p, axis=0, keepdims=True) + 1e-8
+    
+    # パワー比ベースのソフトマスク
+    mask = (p / p_sum) ** (noise_intensity * 4)  # noise_intensityで鋭さ調整
+    mask = mask / (np.sum(mask, axis=0, keepdims=True) + 1e-8)
+    
     d_out = d if inplace else d.copy()
-
-    # leave only the maximum channel for each frame, each freq. bin
-    for i in range(d.shape[0]):
-        d_out[i, p_max != i] *= (1.0 - noise_intensity)
-
+    for i in range(d_out.shape[0]):
+        d_out[i] *= mask[i]
     return d_out
 
 
